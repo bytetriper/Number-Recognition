@@ -10,7 +10,14 @@ RT.
 
 在本题中，你只需要解决基础的灰度图片单个数字识别的问题。即给定一张灰度图片，输出0-9的一个数字作为你的预测。
 
+例如：
+!["6"](png_data\6\6.png)  应该被分类为6
+
+![难以辨认的4](\png_data\4\8.png) 应该被分类为4（虽然很像9）
+
 ## 数据
+所有数据和代码都已放在[Code Repo](https://github.com/bytetriper/Number-Recognition)
+
 我们对图片的存储方式做如下规定：
 
 * 所有图像均被表示为二维数组$A_{N\times N},A_{i,j}\in [0,1]$，其中1为纯白，0为纯黑。
@@ -23,16 +30,17 @@ RT.
 
 * 由于使用C++读入图片非常不方便，我们下发了ppm格式的图片以方便读取。当然，你也可以自行实现读取jpeg格式的图片。
 * 同时，我们也给出了读取ppm的代码，你可以直接使用。
-
+* 虽然文件以ppm格式存储，但内容实际是P5的PGM，即灰度图。你可以在[这里](http://netpbm.sourceforge.net/doc/pgm.html)查看PGM的具体格式。
 
 ### Read from ppm
-* 源文件`read_support.cpp`与`read_support.h`已下发在仓库`read_support/`中。
+* 源文件`read_support.cpp`与`read_support.h`已下发在仓库中。
 `read_support.h` 中提供了两个函数的接口：
 
 ```cpp
-std::vector<std::vector<double>> read_ppm(const std::string &filename);
-std::vector<std::vector<double>> read_ppm();
-void check(std::vector<std::vector<double>> mat);
+typedef std::vector<std::vector<double>> IMAGE_T;
+IMAGE_T read_ppm(const std::string &filename);
+IMAGE_T read_ppm();
+void check(IMAGE_T mat);
 ```
 
 * ```read_ppm```函数接受一个字符串作为ppm文件地址，返回一个二维vector，即图片的二维数组表示，数据存储约定见前。没有参数的`read_ppm`函数行为和上述函数相同，但是会从标准输入读取ppm文件。
@@ -42,17 +50,17 @@ void check(std::vector<std::vector<double>> mat);
 ## 评分
 本题评分标准如下：
 
-我们希望衡量的是算法的正确的概率。假设在测试数据集里，对于一个固定的label $k$， 你预测正确了其中的$N_k$个，那么你的得分为：
+我们希望衡量的是算法的正确的概率。假设在测试数据集里，对于一个固定的label $k$， 你预测正确了其中的$M_k$个，那么你的得分为：
 
 $$
-\frac{N_k}{N}\times 1000
+\frac{M_k}{N_k}\times 1000
 $$
 
-其中$N$为label为$k$的测试数据总数。
+其中$M_k$为label为$N_k$的测试数据总数。
 
-最后，你的得分为所有label的得分的总和。
+最后，你的得分为所有label的得分的总和，因此最高总分为10000。
 
-具体来说，第$i$个测试点的得分反应你对于label$i$的预测的正确率。因此你可以通过查看各个测试点的分值来针对性的做出优化。
+具体来说，第$i$个测试点的得分反应你对于label $i$的预测的正确率。因此你可以通过查看各个测试点的分值来针对性的做出优化。
 
 上交到OJ的代码会在测试集数据下进行测试。请注意：**测试数据集与下发数据不同**。
 
@@ -60,7 +68,7 @@ $$
 欢迎在本地用下发数据自行评测结果，评测代码详见：
 
 具体评测方式：
-* `make`
+* `make`，由于stdc++17在MINGW上的path实现有一些问题，请尽量使用linux或者WSL进行测试。
 * 如果希望简单地在所有下发数据上测试，请使用：`./test`，输出为在所有数据上的正确率。
 * 如果希望对某个label的数据进行测试，请使用：`./test [label]`（如`./test 1`，输出为在该label上的正确率。
 * 你也可以自行改动代码以实现更精细的评测。
